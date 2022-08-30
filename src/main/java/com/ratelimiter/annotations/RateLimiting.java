@@ -11,6 +11,10 @@ import java.lang.annotation.Target;
 @Documented
 public @interface RateLimiting {
 
-    String key() default "";
+    String keyObjectName() default "";
+
+    String defaultKey() default "";
+
+    String providerBeanName();
 
 }

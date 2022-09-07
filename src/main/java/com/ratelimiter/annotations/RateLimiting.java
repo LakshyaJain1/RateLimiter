@@ -1,14 +1,16 @@
 package com.ratelimiter.annotations;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+
+/**
+ * Annotation that can be used to rate limit you API/function calls based on the
+ * given key.
+ */
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
-@Documented
+@Repeatable(MultiRateLimiting.class)
 public @interface RateLimiting {
 
     String keyObjectName() default "";

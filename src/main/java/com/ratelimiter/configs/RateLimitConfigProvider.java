@@ -5,9 +5,15 @@ import com.ratelimiter.models.RateLimiterObject;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 
-import java.util.Optional;
-
 import static com.ratelimiter.utils.constants.KEY_NOT_FOUND;
+
+/**
+ * This configuration class need to be extended by the user and give the implementation of the
+ * abstract methods in order to use Rate Limiting annotation.
+ *
+ * @param <T> This is generic object which user need to create in order to retrive
+ *           object from the DB.
+ */
 
 @Configuration
 public abstract class RateLimitConfigProvider<T> {
@@ -16,7 +22,7 @@ public abstract class RateLimitConfigProvider<T> {
 
     public abstract T getRateLimiterObjectFromDb(String key);
 
-    public abstract RateLimiterObject getRateLimiterObjectFromDbObject(T o);
+    public abstract RateLimiterObject transformDBObjectToRateLimiterObject(T o);
 
     public final RateLimiterObject getRateLimiterObject(String key) {
         RateLimiterObject rateLimiterObject;
@@ -25,10 +31,10 @@ public abstract class RateLimitConfigProvider<T> {
             T rateLimiterObjectFromDb;
             try {
                 rateLimiterObjectFromDb = getRateLimiterObjectFromDb(key);
-            } catch (NullPointerException ex) {
+            } catch (Exception ex) {
                 throw new RateLimitException(HttpStatus.BAD_REQUEST.value(), KEY_NOT_FOUND);
             }
-            rateLimiterObject = getRateLimiterObjectFromDbObject(rateLimiterObjectFromDb);
+            rateLimiterObject = transformDBObjectToRateLimiterObject(rateLimiterObjectFromDb);
         }
         return rateLimiterObject;
     }

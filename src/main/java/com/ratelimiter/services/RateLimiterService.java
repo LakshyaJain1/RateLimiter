@@ -7,6 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+/**
+ * Rate Limiter Service help to create the bucket with the given key.
+ */
+
 @Service
 public class RateLimiterService {
 

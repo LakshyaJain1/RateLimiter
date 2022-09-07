@@ -9,6 +9,10 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.function.Supplier;
 
+/**
+ * Configuration class to get the Bucket configuration used by Bucket4j.
+ */
+
 @Service
 public class BucketConfigService {
 

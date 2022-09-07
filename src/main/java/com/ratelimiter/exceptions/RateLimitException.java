@@ -5,6 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Rate Limit Exception which should be thrown in case of any exception occur
+ * while using the library.
+ */
+
 @Data
 @Builder
 @AllArgsConstructor

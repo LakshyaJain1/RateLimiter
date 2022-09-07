@@ -14,6 +14,12 @@ import org.springframework.context.annotation.Configuration;
 import java.io.IOException;
 import java.time.Duration;
 
+/**
+ * This redis configuration class is needed by Bucket4j to give
+ * functionality of Rate Limiting in distributed system.
+ *
+ */
+
 @Configuration
 public class RateLimiterRedisConfig {
 

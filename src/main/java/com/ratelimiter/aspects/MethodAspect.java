@@ -1,7 +1,6 @@
 package com.ratelimiter.aspects;
 
 import com.ratelimiter.annotations.RateLimiting;
-import com.ratelimiter.cache.RateLimiterCache;
 import com.ratelimiter.configs.RateLimitConfigProvider;
 import com.ratelimiter.exceptions.RateLimitException;
 import com.ratelimiter.models.RateLimitKeyProvider;
@@ -21,7 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -30,6 +28,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.ratelimiter.utils.constants.EMPTY_STRING;
+
+/**
+ * This is Aspect class where we intercept the RateLimiting annotation and check
+ * whether Limit is exceeded or not.
+ */
 
 @Slf4j
 @Aspect
@@ -40,16 +43,54 @@ public class MethodAspect {
     private RateLimiterService rateLimiter;
 
     @Autowired
-    private RateLimiterCache rateLimiterCache;
-
-    @Autowired
     BeanFactory beanFactory;
 
+    /**
+     * MultiRateLimiter is called when you use multiple RateLimiting annotation
+     * over a function.
+     *
+     * @param joinPoint joinPoint exposes the proceed(..) method in order to support around advice
+     * @return returns to the Annotated function
+     * @throws Throwable throws exception when rate limit exceeded
+     */
+    @Around("@annotation(com.ratelimiter.annotations.MultiRateLimiting)")
+    public Object MultiRateLimiter(ProceedingJoinPoint joinPoint) throws Throwable {
+        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+        List<Object> arguments = Arrays.stream(joinPoint.getArgs()).collect(Collectors.toList());
+        RateLimiting[] rateLimitAnnotations = method.getAnnotationsByType(RateLimiting.class);
+
+        for (RateLimiting rateLimitAnnotation : rateLimitAnnotations) {
+            checkRateLimit(joinPoint, arguments, rateLimitAnnotation);
+        }
+
+        return returnToFunction(joinPoint);
+    }
+
+    /**
+     * RateLimiter is called when you use single RateLimiting annotation
+     * over a function.
+     *
+     * @param joinPoint joinPoint exposes the proceed(..) method in order to support around advice
+     * @return returns to the Annotated function
+     * @throws Throwable throws exception when rate limit exceeded
+     */
     @Around("@annotation(com.ratelimiter.annotations.RateLimiting)")
     public Object RateLimiter(ProceedingJoinPoint joinPoint) throws Throwable {
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         List<Object> arguments = Arrays.stream(joinPoint.getArgs()).collect(Collectors.toList());
-        RateLimiting rateLimitAnnotation = getRateLimitAnnotation(method);
+        RateLimiting rateLimitAnnotation = method.getAnnotation(RateLimiting.class);
+        checkRateLimit(joinPoint, arguments, rateLimitAnnotation);
+        return returnToFunction(joinPoint);
+    }
+
+    /**
+     * This is generic function to check the Rate Limit w.r.t the given RateLimit Annotation.
+     *
+     * @param joinPoint joinPoint exposes the proceed(..) method in order to support around advice
+     * @param arguments List of arguments given in the function
+     * @param rateLimitAnnotation RateLimit Annotation present over a function
+     */
+    private void checkRateLimit(ProceedingJoinPoint joinPoint,List<Object> arguments, RateLimiting rateLimitAnnotation) {
 
         String keyObjectName = rateLimitAnnotation.keyObjectName();
         String defaultKey = rateLimitAnnotation.defaultKey();
@@ -72,19 +113,16 @@ public class MethodAspect {
         if (isRateLimitReached) {
             throw new RateLimitException(HttpStatus.TOO_MANY_REQUESTS.value(), HttpStatus.TOO_MANY_REQUESTS.toString());
         }
-
-        return returnToFunction(joinPoint);
     }
 
-    private RateLimiting getRateLimitAnnotation(Method method) {
-        for (Annotation declaredAnnotation : method.getDeclaredAnnotations()) {
-            if (declaredAnnotation instanceof RateLimiting) {
-                return (RateLimiting) declaredAnnotation;
-            }
-        }
-        return null;
-    }
-
+    /**
+     *
+     * @param joinPoint joinPoint exposes the proceed(..) method in order to support around advice
+     * @param arguments List of arguments given in the function
+     * @param keyObjectName Name of object present in the arguments of function from which
+     *  Rate Limiter can get the Rate Limit Key
+     * @return return Rate Limit Key
+     */
     private String getRateLimitKey(ProceedingJoinPoint joinPoint, List<Object> arguments, String keyObjectName) {
         CodeSignature codeSignature = (CodeSignature) joinPoint.getSignature();
         List<String> argumentNames = Arrays.stream(codeSignature.getParameterNames()).collect(Collectors.toList());

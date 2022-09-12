@@ -4,6 +4,7 @@ import com.ratelimiter.exceptions.RateLimitException;
 import com.ratelimiter.models.RateLimiterObject;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import com.ratelimiter.aspects.MethodAspect;
 
 import static com.ratelimiter.utils.constants.KEY_NOT_FOUND;
 
@@ -12,29 +13,57 @@ import static com.ratelimiter.utils.constants.KEY_NOT_FOUND;
  * abstract methods in order to use Rate Limiting annotation.
  *
  * @param <T> This is generic object which user need to create in order to retrive
- *           object from the DB.
+ *            object from the source.
  */
 
 @Configuration
 public abstract class RateLimitConfigProvider<T> {
 
+    /**
+     * User needs to implement this function in order to get the Rate Limiter Object
+     * from their Cache.
+     *
+     * @param key Rate Limit key
+     * @return Rate Limiter object
+     */
     public abstract RateLimiterObject getRateLimiterObjectFromCache(String key);
 
-    public abstract T getRateLimiterObjectFromDb(String key);
+    /**
+     * User needs to implement this function in order to get the Rate Limiter Object
+     * from their source.
+     *
+     * @param key Rate Limit key
+     * @return Rate Limiter object from source
+     */
+    public abstract T getRateLimiterObjectFromSource(String key);
 
-    public abstract RateLimiterObject transformDBObjectToRateLimiterObject(T o);
+    /**
+     * User needs to implement this function in order to transform their source Rate Limiter
+     * Object to Rate Limiter Object.
+     *
+     * @param rateLimiterObjectFromSource Rate Limiter object from source
+     * @return returns Rate Limiter Object
+     */
+    public abstract RateLimiterObject transformSourceObjectToRateLimiterObject(T rateLimiterObjectFromSource);
 
+    /**
+     * This is generic function which we are using in {@link MethodAspect} class to get
+     * Rate Limiter Object.
+     *
+     * @param key Rate Limiter key
+     * @return Rate Limiter Object
+     */
     public final RateLimiterObject getRateLimiterObject(String key) {
         RateLimiterObject rateLimiterObject;
         rateLimiterObject = getRateLimiterObjectFromCache(key);
         if (rateLimiterObject == null) {
-            T rateLimiterObjectFromDb;
+            T rateLimiterObjectFromSource;
             try {
-                rateLimiterObjectFromDb = getRateLimiterObjectFromDb(key);
+                rateLimiterObjectFromSource = getRateLimiterObjectFromSource(key);
             } catch (Exception ex) {
                 throw new RateLimitException(HttpStatus.BAD_REQUEST.value(), KEY_NOT_FOUND);
             }
-            rateLimiterObject = transformDBObjectToRateLimiterObject(rateLimiterObjectFromDb);
+            rateLimiterObject = transformSourceObjectToRateLimiterObject(rateLimiterObjectFromSource);
         }
         return rateLimiterObject;
     }

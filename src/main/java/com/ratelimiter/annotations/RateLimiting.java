@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Annotation that can be used to rate limit you API/function calls based on the
+ * Annotation that can be used to rate limit your API/function calls based on the
  * given key.
  */
 
@@ -18,5 +18,7 @@ public @interface RateLimiting {
     String defaultKey() default "";
 
     String providerBeanName();
+
+    int priority() default Integer.MAX_VALUE;
 
 }

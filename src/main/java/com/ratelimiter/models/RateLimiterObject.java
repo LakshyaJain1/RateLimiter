@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.temporal.ChronoUnit;
+
 /**
  * Generic Rate limiter object which we are using in this library.
  */
@@ -17,6 +19,6 @@ public class RateLimiterObject {
 
     String key;
     Boolean isRateLimitActivated;
-    int rateLimitPerMinute;
-
+    int rateLimit;
+    ChronoUnit timeUnit;
 }

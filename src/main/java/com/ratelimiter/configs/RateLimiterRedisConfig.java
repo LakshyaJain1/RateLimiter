@@ -8,20 +8,27 @@ import org.redisson.config.Config;
 import org.redisson.config.ConfigSupport;
 import org.redisson.connection.ConnectionManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 /**
  * This redis configuration class is needed by Bucket4j to give
  * functionality of Rate Limiting in distributed system.
- *
  */
 
 @Configuration
 public class RateLimiterRedisConfig {
+
+    @Value("${ratelimiter.redisKey.expiry}")
+    private int expiry;
+
+    @Value("${ratelimiter.redisKey.expiryTimeUnit}")
+    private String expiryTimeUnit;
 
     @Autowired
     private RedissonParamConfig redissonParamConfig;
@@ -38,7 +45,9 @@ public class RateLimiterRedisConfig {
         CommandSyncService commandSyncService = new CommandSyncService(redissonConnectionManager());
         return new RedissonBasedProxyManager(commandSyncService,
                 ClientSideConfig.getDefault(),
-                Duration.ofMinutes(10));
+                Duration.of(expiry, ChronoUnit.valueOf(expiryTimeUnit)));
+
+
     }
 
 }

@@ -22,12 +22,14 @@ import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.ratelimiter.utils.constants.EMPTY_STRING;
+import static com.ratelimiter.utils.constants.RATE_LIMIT_EXCEEDED;
 
 /**
  * This is Aspect class where we intercept the RateLimiting annotation and check
@@ -57,7 +59,11 @@ public class MethodAspect {
     public Object MultiRateLimiter(ProceedingJoinPoint joinPoint) throws Throwable {
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         List<Object> arguments = Arrays.stream(joinPoint.getArgs()).collect(Collectors.toList());
-        RateLimiting[] rateLimitAnnotations = method.getAnnotationsByType(RateLimiting.class);
+        List<RateLimiting> rateLimitAnnotations = Arrays.asList(method.getAnnotationsByType(RateLimiting.class));
+
+        rateLimitAnnotations = rateLimitAnnotations.stream()
+                .sorted(Comparator.comparing(RateLimiting::priority).thenComparing(RateLimiting::keyObjectName))
+                .collect(Collectors.toList());
 
         for (RateLimiting rateLimitAnnotation : rateLimitAnnotations) {
             checkRateLimit(joinPoint, arguments, rateLimitAnnotation);
@@ -86,11 +92,11 @@ public class MethodAspect {
     /**
      * This is generic function to check the Rate Limit w.r.t the given RateLimit Annotation.
      *
-     * @param joinPoint joinPoint exposes the proceed(..) method in order to support around advice
-     * @param arguments List of arguments given in the function
+     * @param joinPoint           joinPoint exposes the proceed(..) method in order to support around advice
+     * @param arguments           List of arguments given in the function
      * @param rateLimitAnnotation RateLimit Annotation present over a function
      */
-    private void checkRateLimit(ProceedingJoinPoint joinPoint,List<Object> arguments, RateLimiting rateLimitAnnotation) {
+    private void checkRateLimit(ProceedingJoinPoint joinPoint, List<Object> arguments, RateLimiting rateLimitAnnotation) {
 
         String keyObjectName = rateLimitAnnotation.keyObjectName();
         String defaultKey = rateLimitAnnotation.defaultKey();
@@ -111,16 +117,17 @@ public class MethodAspect {
         }
 
         if (isRateLimitReached) {
-            throw new RateLimitException(HttpStatus.TOO_MANY_REQUESTS.value(), HttpStatus.TOO_MANY_REQUESTS.toString());
+            throw new RateLimitException(HttpStatus.TOO_MANY_REQUESTS.value(),
+                    RATE_LIMIT_EXCEEDED + ", " + String.format("Rate for %s is limited to %s requests per %s",
+                            rateLimiterObject.getKey(), rateLimiterObject.getRateLimit(), rateLimiterObject.getTimeUnit().toString()));
         }
     }
 
     /**
-     *
-     * @param joinPoint joinPoint exposes the proceed(..) method in order to support around advice
-     * @param arguments List of arguments given in the function
+     * @param joinPoint     joinPoint exposes the proceed(..) method in order to support around advice
+     * @param arguments     List of arguments given in the function
      * @param keyObjectName Name of object present in the arguments of function from which
-     *  Rate Limiter can get the Rate Limit Key
+     *                      Rate Limiter can get the Rate Limit Key
      * @return return Rate Limit Key
      */
     private String getRateLimitKey(ProceedingJoinPoint joinPoint, List<Object> arguments, String keyObjectName) {

@@ -7,6 +7,7 @@ import io.github.bucket4j.Refill;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.function.Supplier;
 
 /**
@@ -17,8 +18,9 @@ import java.util.function.Supplier;
 public class BucketConfigService {
 
     public Supplier<BucketConfiguration> getConfigSupplierObject(RateLimiterObject rateLimiterObject) {
-        Refill refill = Refill.intervally(rateLimiterObject.getRateLimitPerMinute(), Duration.ofMinutes(1));
-        Bandwidth limit = Bandwidth.classic(rateLimiterObject.getRateLimitPerMinute(), refill);
+        Refill refill = Refill.intervally(rateLimiterObject.getRateLimit(),
+                Duration.of(1, rateLimiterObject.getTimeUnit()));
+        Bandwidth limit = Bandwidth.classic(rateLimiterObject.getRateLimit(), refill);
         return () -> (BucketConfiguration.builder()
                 .addLimit(limit)
                 .build());

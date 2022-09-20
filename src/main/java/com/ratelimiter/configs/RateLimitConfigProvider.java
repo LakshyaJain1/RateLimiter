@@ -26,7 +26,7 @@ public abstract class RateLimitConfigProvider<T> {
      * @param key Rate Limit key
      * @return Rate Limiter object
      */
-    public abstract RateLimiterObject getRateLimiterObjectFromCache(String key);
+    public abstract T getRateLimiterObjectFromCache(String key);
 
     /**
      * User needs to implement this function in order to get the Rate Limiter Object
@@ -55,7 +55,8 @@ public abstract class RateLimitConfigProvider<T> {
      */
     public final RateLimiterObject getRateLimiterObject(String key) {
         RateLimiterObject rateLimiterObject;
-        rateLimiterObject = getRateLimiterObjectFromCache(key);
+        T rateLimiterObjectFromCache = getRateLimiterObjectFromCache(key);
+        rateLimiterObject = rateLimiterObjectFromCache != null ? transformSourceObjectToRateLimiterObject(rateLimiterObjectFromCache) : null;
         if (rateLimiterObject == null) {
             T rateLimiterObjectFromSource;
             try {

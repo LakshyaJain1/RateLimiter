@@ -45,9 +45,7 @@ public class RateLimiterRedisConfig {
         CommandSyncService commandSyncService = new CommandSyncService(redissonConnectionManager());
         return new RedissonBasedProxyManager(commandSyncService,
                 ClientSideConfig.getDefault(),
-                Duration.of(expiry, ChronoUnit.valueOf(expiryTimeUnit)));
-
-
+                Duration.of(expiry, ChronoUnit.valueOf(expiryTimeUnit.toUpperCase())));
     }
 
 }

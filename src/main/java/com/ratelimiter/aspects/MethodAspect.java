@@ -22,6 +22,7 @@ import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -104,22 +105,25 @@ public class MethodAspect {
 
         RateLimitConfigProvider rateLimitConfigProvider = beanFactory.getBean(beanName, RateLimitConfigProvider.class);
 
-        String rateLimitKey = StringUtils.hasLength(defaultKey) ? defaultKey : getRateLimitKey(joinPoint, arguments, keyObjectName);
-        boolean isRateLimitReached = false;
-        RateLimiterObject rateLimiterObject = rateLimitConfigProvider.getRateLimiterObject(rateLimitKey);
+        List<String> rateLimitKeys = StringUtils.hasLength(defaultKey) ? Collections.singletonList(defaultKey) : getRateLimitKeys(joinPoint, arguments, keyObjectName);
 
-        if (rateLimiterObject.getIsRateLimitActivated()) {
-            Bucket bucket = rateLimiter.resolveBucket(rateLimiterObject);
-            ConsumptionProbe consumptionProbe = bucket.tryConsumeAndReturnRemaining(1);
-            log.debug("Consumption Probe - Remaining tokens : {}, Nanos to fill : {}", consumptionProbe.getRemainingTokens(),
-                    consumptionProbe.getNanosToWaitForRefill());
-            isRateLimitReached = !consumptionProbe.isConsumed();
-        }
+        for (String rateLimitKey : rateLimitKeys) {
+            boolean isRateLimitReached = false;
+            RateLimiterObject rateLimiterObject = rateLimitConfigProvider.getRateLimiterObject(rateLimitKey);
 
-        if (isRateLimitReached) {
-            throw new RateLimitException(HttpStatus.TOO_MANY_REQUESTS.value(),
-                    RATE_LIMIT_EXCEEDED + ", " + String.format("Rate for %s is limited to %s requests per %s",
-                            rateLimiterObject.getKey(), rateLimiterObject.getRateLimit(), rateLimiterObject.getTimeUnit().toString()));
+            if (rateLimiterObject.getIsRateLimitActivated()) {
+                Bucket bucket = rateLimiter.resolveBucket(rateLimiterObject);
+                ConsumptionProbe consumptionProbe = bucket.tryConsumeAndReturnRemaining(1);
+                log.debug("Consumption Probe - Remaining tokens : {}, Nanos to fill : {}", consumptionProbe.getRemainingTokens(),
+                        consumptionProbe.getNanosToWaitForRefill());
+                isRateLimitReached = !consumptionProbe.isConsumed();
+            }
+
+            if (isRateLimitReached) {
+                throw new RateLimitException(HttpStatus.TOO_MANY_REQUESTS.value(),
+                        RATE_LIMIT_EXCEEDED + ", " + String.format("Rate for %s is limited to %s requests per %s",
+                                rateLimiterObject.getKey(), rateLimiterObject.getRateLimit(), rateLimiterObject.getTimeUnit().toString()));
+            }
         }
     }
 
@@ -130,17 +134,17 @@ public class MethodAspect {
      *                      Rate Limiter can get the Rate Limit Key
      * @return return Rate Limit Key
      */
-    private String getRateLimitKey(ProceedingJoinPoint joinPoint, List<Object> arguments, String keyObjectName) {
+    private List<String> getRateLimitKeys(ProceedingJoinPoint joinPoint, List<Object> arguments, String keyObjectName) {
         CodeSignature codeSignature = (CodeSignature) joinPoint.getSignature();
         List<String> argumentNames = Arrays.stream(codeSignature.getParameterNames()).collect(Collectors.toList());
         Map<String, Object> keyValueMap = IntStream.range(0, argumentNames.size()).boxed().collect(Collectors.toMap(argumentNames::get, arguments::get));
         Object o = keyValueMap.get(keyObjectName);
         if (o instanceof RateLimitKeyProvider) {
-            return ((RateLimitKeyProvider) o).getRateLimitKey();
+            return ((RateLimitKeyProvider) o).getRateLimitKeys();
         } else if (o instanceof String) {
-            return o.toString();
+            return Collections.singletonList(o.toString());
         }
-        return EMPTY_STRING;
+        return Collections.singletonList(EMPTY_STRING);
     }
 
     private Object returnToFunction(ProceedingJoinPoint joinPoint) throws Throwable {

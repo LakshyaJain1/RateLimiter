@@ -1,5 +1,7 @@
 package com.ratelimiter.models;
 
+import java.util.List;
+
 /**
  * This Rate Limit Key provider which need to implement by user in order to get the Rate limit key
  * from the user defined object.
@@ -7,6 +9,6 @@ package com.ratelimiter.models;
 
 public interface RateLimitKeyProvider {
 
-    String getRateLimitKey();
+    List<String> getRateLimitKeys();
 
 }

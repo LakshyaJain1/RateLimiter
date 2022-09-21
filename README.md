@@ -56,7 +56,7 @@ We have provided some hooks in order to integrate it in your application, you ne
 Example:
 ```java
 @Configuration
-public class RateLimitConfig1 extends RateLimitConfigProvider<RateLimiterDbObject> {
+public class RateLimitConfig1 extends RateLimitConfigProvider<RateLimiterEntity> {
 
     @Autowired
     RateLimiterRepository rateLimiterRepository;
@@ -64,26 +64,28 @@ public class RateLimitConfig1 extends RateLimitConfigProvider<RateLimiterDbObjec
     @Autowired
     CacheService cacheService;
 
-    public RateLimiterObject getRateLimiterObjectFromCache(String s) {
-        return (RateLimiterObject) cacheService.getObject(s);
+    public RateLimiterEntity getRateLimiterObjectFromCache(String s) {
+        return cacheService.getObject(s, RateLimiterEntity.class);
     }
 
-    public RateLimiterDbObject getRateLimiterObjectFromSource(String rateLimitKey) {
-        RateLimiterDbObject rateLimiterDbObject = rateLimiterRepository.findByRateLimitKey(rateLimitKey);
-        cacheService.saveObject(rateLimitKey, transformSourceObjectToRateLimiterObject(rateLimiterDbObject));
-        return rateLimiterDbObject;
+    public RateLimiterEntity getRateLimiterObjectFromSource(String rateLimitKey) {
+        RateLimiterEntity rateLimiterEntity = rateLimiterRepository.findByRateLimitKey(rateLimitKey);
+        cacheService.saveObject(rateLimitKey, rateLimiterEntity);
+        return rateLimiterEntity;
     }
 
-    public RateLimiterObject transformSourceObjectToRateLimiterObject(RateLimiterDbObject rateLimiterDbObject) {
+    public RateLimiterObject transformSourceObjectToRateLimiterObject(RateLimiterEntity rateLimiterEntity) {
         return RateLimiterObject.builder()
-                .key(rateLimiterDbObject.getRateLimitKey())
-                .isRateLimitActivated(rateLimiterDbObject.getIsRateLimitActivated())
-                .rateLimit(rateLimiterDbObject.getRateLimit())
-                .timeUnit(rateLimiterDbObject.getRateLimitTimeUnit())
+                .key(rateLimiterEntity.getRateLimitKey())
+                .isRateLimitActivated(rateLimiterEntity.getIsRateLimitActivated())
+                .rateLimit(rateLimiterEntity.getRateLimit())
+                .timeUnit(ChronoUnit.valueOf(rateLimiterEntity.getRateLimitTimeUnit().toUpperCase()))
                 .build();
     }
+
 }
 ```
+
 3. If user want to use some attribute present in an object as your Rate Limit key, then you have to extend that class with [**RateLimitKeyProvider**](src/main/java/com/ratelimiter/models/RateLimitKeyProvider.java).
 Example:
 ```java
@@ -91,15 +93,20 @@ public class UserInfo implements RateLimitKeyProvider {
     private String firstName;
     private String lastName;
     private String panNumber;
+    private String optionalAddress;
+    private String postalCode;
+    private UserDob dateOfBirth;
+    private String phoneNum;
     private String email;
     private String gender;
     private AddressTypeEnum optionalAddressType;
 
     @Override
-    public String getRateLimitKey() {
-        return getPanNumber();
+    public List<String> getRateLimitKeys() {
+        return Arrays.asList(getPanNumber(), getPhoneNum());
     }
 }
+
 ```
 Here now you can have your pan number as your rate limit key.
 

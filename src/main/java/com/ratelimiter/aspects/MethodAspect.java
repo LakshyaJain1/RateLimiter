@@ -111,7 +111,7 @@ public class MethodAspect {
             boolean isRateLimitReached = false;
             RateLimiterDto rateLimiterDto = rateLimitConfigProvider.getRateLimiterDto(rateLimitKey);
 
-            if (rateLimiterDto.getIsRateLimitActivated()) {
+            if (rateLimiterDto.isRateLimitActivated()) {
                 Bucket bucket = rateLimiter.resolveBucket(rateLimiterDto);
                 ConsumptionProbe consumptionProbe = bucket.tryConsumeAndReturnRemaining(1);
                 log.debug("Consumption Probe - Remaining tokens : {}, Nanos to fill : {}", consumptionProbe.getRemainingTokens(),

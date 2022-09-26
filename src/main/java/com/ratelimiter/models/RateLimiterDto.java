@@ -18,7 +18,7 @@ import java.time.temporal.ChronoUnit;
 public class RateLimiterDto {
 
     String key;
-    Boolean isRateLimitActivated;
+    boolean isRateLimitActivated;
     int rateLimit;
     ChronoUnit timeUnit;
 }

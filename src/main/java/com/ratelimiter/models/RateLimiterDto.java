@@ -15,7 +15,7 @@ import java.time.temporal.ChronoUnit;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RateLimiterObject {
+public class RateLimiterDto {
 
     String key;
     Boolean isRateLimitActivated;

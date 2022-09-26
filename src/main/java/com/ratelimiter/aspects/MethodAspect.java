@@ -4,7 +4,7 @@ import com.ratelimiter.annotations.RateLimiting;
 import com.ratelimiter.configs.RateLimitConfigProvider;
 import com.ratelimiter.exceptions.RateLimitException;
 import com.ratelimiter.models.RateLimitKeyProvider;
-import com.ratelimiter.models.RateLimiterObject;
+import com.ratelimiter.models.RateLimiterDto;
 import com.ratelimiter.services.RateLimiterService;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
@@ -109,10 +109,10 @@ public class MethodAspect {
 
         for (String rateLimitKey : rateLimitKeys) {
             boolean isRateLimitReached = false;
-            RateLimiterObject rateLimiterObject = rateLimitConfigProvider.getRateLimiterObject(rateLimitKey);
+            RateLimiterDto rateLimiterDto = rateLimitConfigProvider.getRateLimiterDto(rateLimitKey);
 
-            if (rateLimiterObject.getIsRateLimitActivated()) {
-                Bucket bucket = rateLimiter.resolveBucket(rateLimiterObject);
+            if (rateLimiterDto.getIsRateLimitActivated()) {
+                Bucket bucket = rateLimiter.resolveBucket(rateLimiterDto);
                 ConsumptionProbe consumptionProbe = bucket.tryConsumeAndReturnRemaining(1);
                 log.debug("Consumption Probe - Remaining tokens : {}, Nanos to fill : {}", consumptionProbe.getRemainingTokens(),
                         consumptionProbe.getNanosToWaitForRefill());
@@ -122,7 +122,7 @@ public class MethodAspect {
             if (isRateLimitReached) {
                 throw new RateLimitException(HttpStatus.TOO_MANY_REQUESTS.value(),
                         RATE_LIMIT_EXCEEDED + ", " + String.format("Rate for %s is limited to %s requests per %s",
-                                rateLimiterObject.getKey(), rateLimiterObject.getRateLimit(), rateLimiterObject.getTimeUnit().toString()));
+                                rateLimiterDto.getKey(), rateLimiterDto.getRateLimit(), rateLimiterDto.getTimeUnit().toString()));
             }
         }
     }

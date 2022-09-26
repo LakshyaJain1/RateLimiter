@@ -1,6 +1,6 @@
 package com.ratelimiter.services;
 
-import com.ratelimiter.models.RateLimiterObject;
+import com.ratelimiter.models.RateLimiterDto;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.redis.redisson.cas.RedissonBasedProxyManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +23,10 @@ public class RateLimiterService {
         this.bucketConfigService = bucketConfigService;
     }
 
-    public Bucket resolveBucket(RateLimiterObject rateLimiterObject) {
+    public Bucket resolveBucket(RateLimiterDto rateLimiterDto) {
         // Does not always create a new bucket, but instead returns the existing one if it exists.
         return redissonBasedProxyManager
                 .builder()
-                .build("bucket4j:" + rateLimiterObject.getKey(), bucketConfigService.getConfigSupplierObject(rateLimiterObject));
+                .build("bucket4j:" + rateLimiterDto.getKey(), bucketConfigService.getConfigSupplierObject(rateLimiterDto));
     }
 }

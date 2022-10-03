@@ -111,7 +111,7 @@ public class MethodAspect {
             boolean isRateLimitReached = false;
             RateLimiterDto rateLimiterDto = rateLimitConfigProvider.getRateLimiterDto(rateLimitKey);
 
-            if (rateLimiterDto.isRateLimitActivated()) {
+            if (rateLimiterDto.isActive()) {
                 Bucket bucket = rateLimiter.resolveBucket(rateLimiterDto);
                 ConsumptionProbe consumptionProbe = bucket.tryConsumeAndReturnRemaining(1);
                 log.debug("Consumption Probe - Remaining tokens : {}, Nanos to fill : {}", consumptionProbe.getRemainingTokens(),
@@ -122,7 +122,7 @@ public class MethodAspect {
             if (isRateLimitReached) {
                 throw new RateLimitException(HttpStatus.TOO_MANY_REQUESTS.value(),
                         RATE_LIMIT_EXCEEDED + ", " + String.format("Rate for %s is limited to %s requests per %s",
-                                rateLimiterDto.getKey(), rateLimiterDto.getRateLimit(), rateLimiterDto.getTimeUnit().toString()));
+                                rateLimiterDto.getKey(), rateLimiterDto.getLimits(), rateLimiterDto.getTimeUnit().toString()));
             }
         }
     }

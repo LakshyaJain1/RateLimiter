@@ -24,10 +24,10 @@ import java.time.temporal.ChronoUnit;
 @Configuration
 public class RateLimiterRedisConfig {
 
-    @Value("${ratelimiter.redisKey.expiry}")
+    @Value("${rate-limiter.bucket4j-redisKey.expiry}")
     private int expiry;
 
-    @Value("${ratelimiter.redisKey.expiryTimeUnit}")
+    @Value("${rate-limiter.bucket4j-redisKey.expiryTimeUnit}")
     private String expiryTimeUnit;
 
     @Autowired

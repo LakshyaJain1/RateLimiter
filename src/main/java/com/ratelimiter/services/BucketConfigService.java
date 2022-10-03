@@ -17,9 +17,9 @@ import java.util.function.Supplier;
 public class BucketConfigService {
 
     public Supplier<BucketConfiguration> getConfigSupplierObject(RateLimiterDto rateLimiterDto) {
-        Refill refill = Refill.intervally(rateLimiterDto.getRateLimit(),
+        Refill refill = Refill.intervally(rateLimiterDto.getLimits(),
                 Duration.of(1, rateLimiterDto.getTimeUnit()));
-        Bandwidth limit = Bandwidth.classic(rateLimiterDto.getRateLimit(), refill);
+        Bandwidth limit = Bandwidth.classic(rateLimiterDto.getLimits(), refill);
         return () -> (BucketConfiguration.builder()
                 .addLimit(limit)
                 .build());

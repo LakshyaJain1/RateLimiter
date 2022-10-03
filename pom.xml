@@ -5,8 +5,10 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.payu.rateLimiter</groupId>
     <artifactId>RateLimiter</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <version>1.0-RELEASE</version>
+
+    <name>payufin-integration-rate-limiter</name>
+    <description>Module to add Rate Limiter</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -61,14 +63,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.lazypay.aspects</groupId>
-            <artifactId>AspectLoggingHelper</artifactId>
-            <version>2.1-RELEASE</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/src/main/resources/libs/payufin-integration-aspect-2.1-RELEASE.jar</systemPath>
-        </dependency>
-
-        <dependency>
             <groupId>com.github.vladimir-bukhtoyarov</groupId>
             <artifactId>bucket4j-core</artifactId>
             <version>7.4.0</version>
@@ -118,5 +112,18 @@
 
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>libs-release-local</id>
+            <name>libs-release-local</name>
+            <url>https://jfrog-artifactory.lazypay.in:443/artifactory/libs-release-local/</url>
+        </repository>
+        <snapshotRepository>
+            <id>libs-snapshot-local</id>
+            <name>libs-snapshot-local</name>
+            <url>https://jfrog-artifactory.lazypay.in:443/artifactory/libs-snapshot-local/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>

@@ -1,6 +1,5 @@
 package com.ratelimiter.configs;
 
-import com.lazypay.aspects.lazyPayLogging.configs.RedissonParamConfig;
 import io.github.bucket4j.distributed.proxy.ClientSideConfig;
 import io.github.bucket4j.redis.redisson.cas.RedissonBasedProxyManager;
 import org.redisson.command.CommandSyncService;
@@ -31,12 +30,12 @@ public class RateLimiterRedisConfig {
     private String expiryTimeUnit;
 
     @Autowired
-    private RedissonParamConfig redissonParamConfig;
+    private RedissonAddress redissonAddress;
 
     @Bean(destroyMethod = "shutdown")
     public ConnectionManager redissonConnectionManager() {
         Config config = new Config();
-        config.useReplicatedServers().addNodeAddress(this.redissonParamConfig.getNodeAddresses().toArray(new String[this.redissonParamConfig.getNodeAddresses().size()]));
+        config.useReplicatedServers().addNodeAddress(this.redissonAddress.getNodeAddresses().toArray(new String[this.redissonAddress.getNodeAddresses().size()]));
         return ConfigSupport.createConnectionManager(config);
     }
 

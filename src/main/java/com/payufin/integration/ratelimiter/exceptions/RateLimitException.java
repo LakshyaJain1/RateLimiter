@@ -1,4 +1,4 @@
-package com.ratelimiter.exceptions;
+package com.payufin.integration.ratelimiter.exceptions;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

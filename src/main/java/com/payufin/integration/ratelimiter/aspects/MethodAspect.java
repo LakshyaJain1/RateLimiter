@@ -1,11 +1,11 @@
-package com.ratelimiter.aspects;
+package com.payufin.integration.ratelimiter.aspects;
 
-import com.ratelimiter.annotations.RateLimiting;
-import com.ratelimiter.configs.RateLimitConfigProvider;
-import com.ratelimiter.exceptions.RateLimitException;
-import com.ratelimiter.models.RateLimitKeyProvider;
-import com.ratelimiter.models.RateLimiterDto;
-import com.ratelimiter.services.RateLimiterService;
+import com.payufin.integration.ratelimiter.annotations.RateLimiting;
+import com.payufin.integration.ratelimiter.configs.RateLimitConfigProvider;
+import com.payufin.integration.ratelimiter.exceptions.RateLimitException;
+import com.payufin.integration.ratelimiter.models.RateLimitKeyProvider;
+import com.payufin.integration.ratelimiter.models.RateLimiterDto;
+import com.payufin.integration.ratelimiter.services.RateLimiterService;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
 import lombok.extern.slf4j.Slf4j;
@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.ratelimiter.utils.constants.EMPTY_STRING;
-import static com.ratelimiter.utils.constants.RATE_LIMIT_EXCEEDED;
+import static com.payufin.integration.ratelimiter.utils.constants.EMPTY_STRING;
+import static com.payufin.integration.ratelimiter.utils.constants.RATE_LIMIT_EXCEEDED;
 
 /**
  * This is Aspect class where we intercept the RateLimiting annotation and check
@@ -56,7 +56,7 @@ public class MethodAspect {
      * @return returns to the Annotated function
      * @throws Throwable throws exception when rate limit exceeded
      */
-    @Around("@annotation(com.ratelimiter.annotations.MultiRateLimiting)")
+    @Around("@annotation(com.payufin.integration.ratelimiter.annotations.MultiRateLimiting)")
     public Object MultiRateLimiter(ProceedingJoinPoint joinPoint) throws Throwable {
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         List<Object> arguments = Arrays.stream(joinPoint.getArgs()).collect(Collectors.toList());
@@ -81,7 +81,7 @@ public class MethodAspect {
      * @return returns to the Annotated function
      * @throws Throwable throws exception when rate limit exceeded
      */
-    @Around("@annotation(com.ratelimiter.annotations.RateLimiting)")
+    @Around("@annotation(com.payufin.integration.ratelimiter.annotations.RateLimiting)")
     public Object RateLimiter(ProceedingJoinPoint joinPoint) throws Throwable {
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         List<Object> arguments = Arrays.stream(joinPoint.getArgs()).collect(Collectors.toList());
@@ -122,7 +122,7 @@ public class MethodAspect {
             if (isRateLimitReached) {
                 throw new RateLimitException(HttpStatus.TOO_MANY_REQUESTS.value(),
                         RATE_LIMIT_EXCEEDED + ", " + String.format("Rate for %s is limited to %s requests per %s",
-                                rateLimiterDto.getKey(), rateLimiterDto.getLimits(), rateLimiterDto.getTimeUnit().toString()));
+                                rateLimiterDto.getKey(), rateLimiterDto.getMaxLimit(), rateLimiterDto.getTimeUnit().toString()));
             }
         }
     }

@@ -3,9 +3,9 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.payu.rateLimiter</groupId>
-    <artifactId>RateLimiter</artifactId>
-    <version>1.0-RELEASE</version>
+    <groupId>com.payufin.integration.rateLimiter</groupId>
+    <artifactId>payufin.integration.rateLimiter</artifactId>
+    <version>1.0-SNAPSHOT</version>
 
     <name>payufin-integration-rate-limiter</name>
     <description>Module to add Rate Limiter</description>

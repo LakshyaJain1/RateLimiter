@@ -1,4 +1,4 @@
-package com.ratelimiter.models;
+package com.payufin.integration.ratelimiter.models;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.ratelimiter.utils;
+package com.payufin.integration.ratelimiter.utils;
 
 public class constants {
 

@@ -1,4 +1,4 @@
-package com.ratelimiter.models;
+package com.payufin.integration.ratelimiter.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +19,6 @@ public class RateLimiterDto {
 
     String key;
     boolean active;
-    int limits;
+    int maxLimit;
     ChronoUnit timeUnit;
 }

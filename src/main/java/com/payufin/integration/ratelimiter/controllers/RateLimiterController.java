@@ -1,8 +1,7 @@
-package com.ratelimiter.controllers;
+package com.payufin.integration.ratelimiter.controllers;
 
-import com.ratelimiter.configs.RateLimitConfigProvider;
-import com.ratelimiter.models.RateLimiterDto;
-import lombok.extern.slf4j.Slf4j;
+import com.payufin.integration.ratelimiter.configs.RateLimitConfigProvider;
+import com.payufin.integration.ratelimiter.models.RateLimiterDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.ratelimiter.annotations;
+package com.payufin.integration.ratelimiter.annotations;
 
 
 import java.lang.annotation.Retention;

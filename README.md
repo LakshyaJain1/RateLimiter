@@ -14,79 +14,33 @@ rate limiting as per the value given in rate limiting annotaion.
 We have provided some hooks in order to integrate it in your application, you need to provide implementation or value to those hooks in order to make it work.
 
 1. Dependencies to be added in your pom.xml file
+
 ```xml
-<dependency>
-    <groupId>com.ratelimiter</groupId>
-    <artifactId>RateLimiter</artifactId>
-    <version>1.0.0</version>
-    <scope>system</scope>
-    <systemPath>${basedir}/src/main/resources/libs/RateLimiter-1.0.0-SNAPSHOT.jar</systemPath>
-</dependency>
 
 <dependency>
-    <groupId>com.github.vladimir-bukhtoyarov</groupId>
-    <artifactId>bucket4j-core</artifactId>
-    <version>7.4.0</version>
+   <groupId>com.payufin.integration.rateLimiter</groupId>
+   <artifactId>payufin.integration.rateLimiter</artifactId>
+   <version>1.0-SNAPSHOT</version>
 </dependency>
 
-<dependency>
-    <groupId>com.github.vladimir-bukhtoyarov</groupId>
-    <artifactId>bucket4j-redis</artifactId>
-    <version>7.4.0</version>
-</dependency>
 
-<dependency>
-    <groupId>org.redisson</groupId>
-    <artifactId>redisson</artifactId>
-    <version>3.13.4</version>
-</dependency>
-
-<dependency>
-    <groupId>org.apache.httpcomponents</groupId>
-    <artifactId>httpclient</artifactId>
-</dependency>
+<repositories>
+<repository>
+   <id>libs-release-local</id>
+   <name>libs-release-local</name>
+   <url>https://jfrog-artifactory.lazypay.in:443/artifactory/libs-release-local/</url>
+</repository>
+<repository>
+   <id>libs-snapshot-local</id>
+   <name>libs-snapshot-local</name>
+   <url>https://jfrog-artifactory.lazypay.in:443/artifactory/libs-snapshot-local/</url>
+</repository>
+</repositories>
 ``` 
 
-2. User need to provide an implementation of the configuration class [**RateLimitConfigProvider**](src/main/java/com/ratelimiter/configs/RateLimitConfigProvider.java), here you need to implement 3 methods:
-   - getRateLimiterObjectFromCache
-   - getRateLimiterObjectFromSource
-   - transformSourceObjectToRateLimiterObject
+2. User need to provide an implementation of the configuration class [**RateLimitConfigProvider**](src/main/java/com/payufin/configs/RateLimitConfigProvider.java)
 
-    
-Example:
-```java
-@Configuration
-public class RateLimitConfig1 extends RateLimitConfigProvider<RateLimiterEntity> {
-
-    @Autowired
-    RateLimiterRepository rateLimiterRepository;
-
-    @Autowired
-    CacheService cacheService;
-
-    public RateLimiterEntity getRateLimiterObjectFromCache(String s) {
-        return cacheService.getObject(s, RateLimiterEntity.class);
-    }
-
-    public RateLimiterEntity getRateLimiterObjectFromSource(String rateLimitKey) {
-        RateLimiterEntity rateLimiterEntity = rateLimiterRepository.findByRateLimitKey(rateLimitKey);
-        cacheService.saveObject(rateLimitKey, rateLimiterEntity);
-        return rateLimiterEntity;
-    }
-
-    public RateLimiterObject transformSourceObjectToRateLimiterObject(RateLimiterEntity rateLimiterEntity) {
-        return RateLimiterObject.builder()
-                .key(rateLimiterEntity.getRateLimitKey())
-                .isRateLimitActivated(rateLimiterEntity.getIsRateLimitActivated())
-                .rateLimit(rateLimiterEntity.getRateLimit())
-                .timeUnit(ChronoUnit.valueOf(rateLimiterEntity.getRateLimitTimeUnit().toUpperCase()))
-                .build();
-    }
-
-}
-```
-
-3. If user want to use some attribute present in an object as your Rate Limit key, then you have to extend that class with [**RateLimitKeyProvider**](src/main/java/com/ratelimiter/models/RateLimitKeyProvider.java).
+3. If user want to use some attribute present in an object as your Rate Limit key, then you have to extend that class with [**RateLimitKeyProvider**](src/main/java/com/payufin/models/RateLimitKeyProvider.java).
 Example:
 ```java
 public class UserInfo implements RateLimitKeyProvider {
@@ -118,10 +72,18 @@ ratelimiter:
     expiry: '5'
     expiryTimeUnit: MINUTES
 ```
-5. Now you can add [@RateLimiting](src/main/java/com/ratelimiter/annotations/RateLimiting.java) annotation before you API/function in order to limit its rate.
 
+5. You can hit below curl to insert the RateLimitKey inside your DB
+```
+curl --location --request POST 'http://localhost:8080/rateLimiter/insertRateLimiterEntity' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "key": "temp1",
+    "active": true,
+    "maxLimit": 5,
+    "timeUnit" : "MINUTES"
+}'
+```
 
-
-
-
+6. Now you can add [@RateLimiting](src/main/java/com/payufin/annotations/RateLimiting.java) annotation before you API/function in order to limit its rate.
 

@@ -1,6 +1,6 @@
-package com.ratelimiter.services;
+package com.payufin.integration.ratelimiter.services;
 
-import com.ratelimiter.models.RateLimiterDto;
+import com.payufin.integration.ratelimiter.models.RateLimiterDto;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.redis.redisson.cas.RedissonBasedProxyManager;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package com.ratelimiter.configs;
+package com.payufin.integration.ratelimiter.configs;
 
 import io.github.bucket4j.distributed.proxy.ClientSideConfig;
 import io.github.bucket4j.redis.redisson.cas.RedissonBasedProxyManager;

@@ -1,12 +1,12 @@
-package com.ratelimiter.configs;
+package com.payufin.integration.ratelimiter.configs;
 
-import com.ratelimiter.exceptions.RateLimitException;
-import com.ratelimiter.models.RateLimiterDto;
+import com.payufin.integration.ratelimiter.exceptions.RateLimitException;
+import com.payufin.integration.ratelimiter.models.RateLimiterDto;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
-import com.ratelimiter.aspects.MethodAspect;
+import com.payufin.integration.ratelimiter.aspects.MethodAspect;
 
-import static com.ratelimiter.utils.constants.KEY_NOT_FOUND;
+import static com.payufin.integration.ratelimiter.utils.constants.KEY_NOT_FOUND;
 
 /**
  * This configuration class need to be extended by the user and give the implementation of the

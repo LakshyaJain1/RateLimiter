@@ -1,4 +1,4 @@
-package com.ratelimiter.configs;
+package com.payufin.integration.ratelimiter.configs;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

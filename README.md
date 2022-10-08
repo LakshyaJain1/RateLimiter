@@ -13,35 +13,48 @@ rate limiting as per the value given in rate limiting annotaion.
 
 We have provided some hooks in order to integrate it in your application, you need to provide implementation or value to those hooks in order to make it work.
 
-1. Dependencies to be added in your pom.xml file
+1. First in local you need to add Jfrog settings in your .m2/settings.xml file in order to fetch jar form Jfrog
+   Check this for latest settings - [here](https://payufin.atlassian.net/wiki/spaces/NEOB/pages/862224863/Integration+Repository+and+JFrog+artifactory)
+
+2. Dependencies to be added in your pom.xml file
 
 ```xml
+<dependencies>
+    ...
+    <dependency>
+        <groupId>com.payufin.integration.rateLimiter</groupId>
+        <artifactId>payufin.integration.rateLimiter</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </dependency>
+    ...
+</dependencies>
+```
 
-<dependency>
-   <groupId>com.payufin.integration.rateLimiter</groupId>
-   <artifactId>payufin.integration.rateLimiter</artifactId>
-   <version>1.0-SNAPSHOT</version>
-</dependency>
+3. You also need to add Jfrog artifactory link in your pom file in order to fetch jar from there.
+```xml
+<project>
+    ...
+    <repositories>
+        <repository>
+            <id>libs-release-local</id>
+            <name>libs-release-local</name>
+            <url>https://jfrog-artifactory.lazypay.in:443/artifactory/libs-release-local/</url>
+        </repository>
+        <repository>
+            <id>libs-snapshot-local</id>
+            <name>libs-snapshot-local</name>
+            <url>https://jfrog-artifactory.lazypay.in:443/artifactory/libs-snapshot-local/</url>
+        </repository>
+    </repositories>
+    ...
+</project>
+```
+    
+4. User need to provide an implementation of the configuration class [**RateLimitConfigProvider**](src/main/java/com/payufin/configs/RateLimitConfigProvider.java)
 
-
-<repositories>
-<repository>
-   <id>libs-release-local</id>
-   <name>libs-release-local</name>
-   <url>https://jfrog-artifactory.lazypay.in:443/artifactory/libs-release-local/</url>
-</repository>
-<repository>
-   <id>libs-snapshot-local</id>
-   <name>libs-snapshot-local</name>
-   <url>https://jfrog-artifactory.lazypay.in:443/artifactory/libs-snapshot-local/</url>
-</repository>
-</repositories>
-``` 
-
-2. User need to provide an implementation of the configuration class [**RateLimitConfigProvider**](src/main/java/com/payufin/configs/RateLimitConfigProvider.java)
-
-3. If user want to use some attribute present in an object as your Rate Limit key, then you have to extend that class with [**RateLimitKeyProvider**](src/main/java/com/payufin/models/RateLimitKeyProvider.java).
+5. If user want to use some attribute present in an object as your Rate Limit key, then you have to extend that class with [**RateLimitKeyProvider**](src/main/java/com/payufin/models/RateLimitKeyProvider.java).
 Example:
+
 ```java
 public class UserInfo implements RateLimitKeyProvider {
     private String firstName;
@@ -85,5 +98,5 @@ curl --location --request POST 'http://localhost:8080/rateLimiter/insertRateLimi
 }'
 ```
 
-6. Now you can add [@RateLimiting](src/main/java/com/payufin/annotations/RateLimiting.java) annotation before you API/function in order to limit its rate.
+6. Now you can add [@RateLimit](src/main/java/com/payufin/annotations/RateLimit.java) annotation before you API/function in order to limit its rate.
 

@@ -7,6 +7,11 @@ import org.springframework.context.annotation.Configuration;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Author - lakshya.jain <br>
+ * Date - 09/10/2022
+ */
+
 @Configuration
 @ConfigurationProperties(prefix = "redisson")
 @Data

@@ -10,6 +10,10 @@ import java.time.Duration;
 import java.util.function.Supplier;
 
 /**
+ * Author - lakshya.jain <br>
+ * Date - 09/10/2022
+ * <p>
+ * <p>
  * Configuration class to get the Bucket configuration used by Bucket4j.
  */
 

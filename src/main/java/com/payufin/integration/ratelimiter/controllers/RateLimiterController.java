@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @author lakshya.jain
- * @created on 23/09/2022
+ * Author - lakshya.jain <br>
+ * Date - 09/10/2022
  */
 
 @RestController

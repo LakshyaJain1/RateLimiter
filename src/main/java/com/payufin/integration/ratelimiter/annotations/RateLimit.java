@@ -5,13 +5,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
+ * Author - lakshya.jain <br>
+ * Date - 09/10/2022
+ * <p>
  * Annotation that can be used to rate limit your API/function calls based on the
  * given key.
+ * </p>
  */
 
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(MultiRateLimiting.class)
-public @interface RateLimiting {
+@Repeatable(MultiRateLimit.class)
+public @interface RateLimit {
 
     String keyObjectName() default "";
 

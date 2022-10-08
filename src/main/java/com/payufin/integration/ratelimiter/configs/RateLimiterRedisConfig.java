@@ -16,6 +16,10 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 /**
+ * Author - lakshya.jain <br>
+ * Date - 09/10/2022
+ * <p>
+ * <p>
  * This redis configuration class is needed by Bucket4j to give
  * functionality of Rate Limiting in distributed system.
  */

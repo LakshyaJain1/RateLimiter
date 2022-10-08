@@ -1,6 +1,6 @@
 package com.payufin.integration.ratelimiter.aspects;
 
-import com.payufin.integration.ratelimiter.annotations.RateLimiting;
+import com.payufin.integration.ratelimiter.annotations.RateLimit;
 import com.payufin.integration.ratelimiter.configs.RateLimitConfigProvider;
 import com.payufin.integration.ratelimiter.exceptions.RateLimitException;
 import com.payufin.integration.ratelimiter.models.RateLimitKeyProvider;
@@ -33,6 +33,10 @@ import static com.payufin.integration.ratelimiter.utils.constants.EMPTY_STRING;
 import static com.payufin.integration.ratelimiter.utils.constants.RATE_LIMIT_EXCEEDED;
 
 /**
+ * Author - lakshya.jain <br>
+ * Date - 09/10/2022
+ * <p>
+ * <p>
  * This is Aspect class where we intercept the RateLimiting annotation and check
  * whether Limit is exceeded or not.
  */
@@ -56,17 +60,17 @@ public class MethodAspect {
      * @return returns to the Annotated function
      * @throws Throwable throws exception when rate limit exceeded
      */
-    @Around("@annotation(com.payufin.integration.ratelimiter.annotations.MultiRateLimiting)")
+    @Around("@annotation(com.payufin.integration.ratelimiter.annotations.MultiRateLimit)")
     public Object MultiRateLimiter(ProceedingJoinPoint joinPoint) throws Throwable {
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         List<Object> arguments = Arrays.stream(joinPoint.getArgs()).collect(Collectors.toList());
-        List<RateLimiting> rateLimitAnnotations = Arrays.asList(method.getAnnotationsByType(RateLimiting.class));
+        List<RateLimit> rateLimitAnnotations = Arrays.asList(method.getAnnotationsByType(RateLimit.class));
 
         rateLimitAnnotations = rateLimitAnnotations.stream()
-                .sorted(Comparator.comparing(RateLimiting::priority).thenComparing(RateLimiting::keyObjectName))
+                .sorted(Comparator.comparing(RateLimit::priority).thenComparing(RateLimit::keyObjectName))
                 .collect(Collectors.toList());
 
-        for (RateLimiting rateLimitAnnotation : rateLimitAnnotations) {
+        for (RateLimit rateLimitAnnotation : rateLimitAnnotations) {
             checkRateLimit(joinPoint, arguments, rateLimitAnnotation);
         }
 
@@ -81,11 +85,11 @@ public class MethodAspect {
      * @return returns to the Annotated function
      * @throws Throwable throws exception when rate limit exceeded
      */
-    @Around("@annotation(com.payufin.integration.ratelimiter.annotations.RateLimiting)")
+    @Around("@annotation(com.payufin.integration.ratelimiter.annotations.RateLimit)")
     public Object RateLimiter(ProceedingJoinPoint joinPoint) throws Throwable {
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         List<Object> arguments = Arrays.stream(joinPoint.getArgs()).collect(Collectors.toList());
-        RateLimiting rateLimitAnnotation = method.getAnnotation(RateLimiting.class);
+        RateLimit rateLimitAnnotation = method.getAnnotation(RateLimit.class);
         checkRateLimit(joinPoint, arguments, rateLimitAnnotation);
         return returnToFunction(joinPoint);
     }
@@ -97,7 +101,7 @@ public class MethodAspect {
      * @param arguments           List of arguments given in the function
      * @param rateLimitAnnotation RateLimit Annotation present over a function
      */
-    private void checkRateLimit(ProceedingJoinPoint joinPoint, List<Object> arguments, RateLimiting rateLimitAnnotation) {
+    private void checkRateLimit(ProceedingJoinPoint joinPoint, List<Object> arguments, RateLimit rateLimitAnnotation) {
 
         String keyObjectName = rateLimitAnnotation.keyObjectName();
         String defaultKey = rateLimitAnnotation.defaultKey();
@@ -110,6 +114,10 @@ public class MethodAspect {
         for (String rateLimitKey : rateLimitKeys) {
             boolean isRateLimitReached = false;
             RateLimiterDto rateLimiterDto = rateLimitConfigProvider.getRateLimiterDto(rateLimitKey);
+
+            if (rateLimiterDto == null) {
+                continue;
+            }
 
             if (rateLimiterDto.isActive()) {
                 Bucket bucket = rateLimiter.resolveBucket(rateLimiterDto);

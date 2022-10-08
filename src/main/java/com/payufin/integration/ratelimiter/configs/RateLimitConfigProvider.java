@@ -1,14 +1,14 @@
 package com.payufin.integration.ratelimiter.configs;
 
-import com.payufin.integration.ratelimiter.exceptions.RateLimitException;
+import com.payufin.integration.ratelimiter.aspects.MethodAspect;
 import com.payufin.integration.ratelimiter.models.RateLimiterDto;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
-import com.payufin.integration.ratelimiter.aspects.MethodAspect;
-
-import static com.payufin.integration.ratelimiter.utils.constants.KEY_NOT_FOUND;
 
 /**
+ * Author - lakshya.jain <br>
+ * Date - 09/10/2022
+ * <p>
+ * <p>
  * This configuration class need to be extended by the user and give the implementation of the
  * abstract methods in order to use Rate Limiting annotation.
  *
@@ -114,7 +114,7 @@ public abstract class RateLimitConfigProvider<T> {
             try {
                 rateLimiterEntityFromSource = getRateLimiterEntityFromSource(key);
             } catch (Exception ex) {
-                throw new RateLimitException(HttpStatus.BAD_REQUEST.value(), KEY_NOT_FOUND);
+                return null;
             }
             rateLimiterDto = transformRateLimiterEntityToRateLimiterDto(rateLimiterEntityFromSource);
         }
